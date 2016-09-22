@@ -1,0 +1,11 @@
+requests
+pynput
+telepot
+pyinstaller
+pyaudio
+pillow
+twisted
+pycrypto
+clipboard
+numpy
+psutil
