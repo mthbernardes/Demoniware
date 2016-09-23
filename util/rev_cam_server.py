@@ -1,29 +1,57 @@
-import cv2
 import socket
-import numpy
 import sys
+import pygame
+from PIL import Image
 
-host = ''
-port = sys.argv[1]
+
+
+pygame.init()
+screen = pygame.display.set_mode((640, 480))
+
+pygame.display.set_caption('Remote Webcam Viewer')
+font = pygame.font.SysFont("Arial",14)
+clock = pygame.time.Clock()
+timer = 0
+previousImage = ""
+image = ""
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind(('127.0.0.1', 8000))
+s.listen(5)
 
 while True:
-    s = socket.socket()
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind((host,port))
-    s.listen(1)
-    conn, addr = s.accept()
-    message = []
-    while True:
-        d = conn.recv(1024 *1024)
-        if not d: break
-        else: message.append(d)
-    data = ''.join(message)
-    stringData = numpy.fromstring(data, numpy.uint8)
+    try:
+        if timer < 1:
+            connection, addr = s.accept()
 
-    decimg = cv2.imdecode(stringData, 1)
-    cv2.imshow("Remote Webcam", decimg)
+            received = []
+
+            while True:
+                data = connection.recv(4096)
+
+                if not data:
+                    break
+                else:
+                    received.append(data)
+
+        dataset = b''.join(received)
+
+        image = pygame.image.fromstring(dataset, (640, 480), 'RGB')
+
+        screen.blit(image, (0, 0))
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+    except:
+        pygame.quit()
+        sys.exit()
 
 
-    if cv2.waitKey(5) == 27: break
 
-cv2.destroyAllWindow()
+        
+
+
+
