@@ -53,7 +53,7 @@ class Main(Plugin):
             zname = self.bot.generate_file_name('chrome_data.zip')
 
 
-            with ZipFile(zname, 'wb') as z:
+            with ZipFile(zname, 'w') as z:
                 for db in self.databases:
                     z.write(os.path.join(path, db))
 
