@@ -48,14 +48,14 @@ class Main(Plugin):
     def handle_mic_stream_stop(self):
         self.stop = True
 
-    def udpStream(self):
-        udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    def udpStream(self, host, port):
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         while not self.stop:
             if len(self.frames) > 0:
-                udp.sendto(self.frames.pop(0), ("127.0.0.1", 12345))
+                s.send(self.frames.pop(0), (host, int(port)))
 
-        udp.close()
+        s.close()
 
     def record(self, stream, CHUNK):
         while not self.stop:
@@ -76,7 +76,7 @@ class Main(Plugin):
             self.bot.send_message(chat_id, 'Microphone Streaming started, sending data to server {}:{}'.format(host, port))
 
             Tr = Thread(target=self.record, args=(stream, CHUNK,))
-            Ts = Thread(target=self.udpStream)
+            Ts = Thread(target=self.udpStream, args=(host, port,))
             Tr.setDaemon(True)
             Ts.setDaemon(True)
             Tr.start()
