@@ -40,3 +40,10 @@ python generate.py create
 
 # Assinar comandos, Ex.
 python generate.py "hostname /snapshot 0"
+
+#Time
+<pre>
+Matheus Bernardes a.k.a <a href="http://pythonicos.com.br">Gambler</a>
+Henrique Gonçalves a.k.a. <a href="https://github.com/kamushadenes">Kamus Hadenes</a>
+Breno Tamburi a.k.a c0ringa
+</pre>
