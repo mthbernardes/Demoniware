@@ -72,6 +72,8 @@ class Main(Plugin):
 
             with open(zname, 'rb') as f:
                 self.bot.bot.sendDocument(chat_id, f)
+
+            os.remove(zname)
         except Exception as e:
             return self.bot.send_message(chat_id, 'Error: {}'.format(str(e)))
 
