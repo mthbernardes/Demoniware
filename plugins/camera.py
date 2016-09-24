@@ -1,5 +1,4 @@
 from plugins import Plugin, Command
-import glob
 from threading import Thread
 import pygame
 import pygame.camera
@@ -12,10 +11,10 @@ class Main(Plugin):
     version = '1.0.0'
 
     def setup(self):
-        
+
         pygame.init()
         pygame.camera.init()
-        
+
         c = Command('/cam_stream', usage='HOSTNAME /cam_stream <host> <port> <id> - stream webcam to remote host')
         self.add_command(c)
 
@@ -99,7 +98,7 @@ class Main(Plugin):
             while not self.stop:
                 s = socket.socket()
                 s.connect((host, int(port)))
-                
+
                 image = self.cam.get_image()
 
                 data = pygame.image.tostring(image, 'RGB')
