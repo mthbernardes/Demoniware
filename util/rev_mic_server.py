@@ -19,7 +19,7 @@ def udpStream(CHUNK):
     udp.bind(("127.0.0.1", 12345))
 
     while True:
-        soundData, addr = udp.recvfrom(CHUNK)
+        soundData, addr = udp.recvfrom(CHUNK * CHANNELS * 2)
         frames.append(soundData)
 
     udp.close()
