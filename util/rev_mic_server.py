@@ -32,7 +32,10 @@ def play(stream, CHUNK):
     while True:
         if len(frames) == BUFFER:
             while True:
-                stream.write(frames.pop(0), CHUNK)
+                try:
+                    stream.write(frames.pop(0), CHUNK)
+                except:
+                    continue
 
 
 if __name__ == "__main__":

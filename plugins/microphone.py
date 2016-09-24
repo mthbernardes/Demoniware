@@ -57,9 +57,11 @@ class Main(Plugin):
 
         s.close()
 
-    def record(self, stream, CHUNK):
+    def record(self, chat_id, stream, CHUNK):
         while not self.stop:
             self.frames.append(stream.read(CHUNK))
+
+        self.bot.send_message(chat_id, 'Microphone Stream stopped')
 
     def handle_mic_stream(self, chat_id, host, port):
         FORMAT = pyaudio.paInt16
@@ -75,7 +77,7 @@ class Main(Plugin):
 
             self.bot.send_message(chat_id, 'Microphone Streaming started, sending data to server {}:{}'.format(host, port))
 
-            Tr = Thread(target=self.record, args=(stream, CHUNK,))
+            Tr = Thread(target=self.record, args=(chat_id, stream, CHUNK,))
             Ts = Thread(target=self.udpStream, args=(host, port,))
             Tr.setDaemon(True)
             Ts.setDaemon(True)
