@@ -30,6 +30,7 @@ class Main(Plugin):
     def handle_suicide(self, chat_id, delay=None):
         try:
             self.bot.send_message(chat_id, random.choice(self.quotes))
+            sleep(5)
             os._exit(0)
         except Exception as e:
             return self.bot.send_message(chat_id, 'Error: {}'.format(str(e)))

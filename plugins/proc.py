@@ -32,7 +32,7 @@ class Main(Plugin):
             t.start()
         elif command == '/process':
             arg_list = [chat_id]
-            arg_list += ' '.join(args)
+            arg_list += [' '.join(args)]
 
             t = Thread(target=self.handle_process, args=tuple(arg_list))
             t.start()

