@@ -53,7 +53,7 @@ class Main(Plugin):
 
         while not self.stop:
             if len(self.frames) > 0:
-                s.send(self.frames.pop(0), (host, int(port)))
+                s.sendto(self.frames.pop(0), (host, int(port)))
 
         s.close()
 
