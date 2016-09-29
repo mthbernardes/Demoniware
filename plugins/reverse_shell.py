@@ -41,7 +41,6 @@ class Main(Plugin):
                 STDOUT, STDERR = comm.communicate()
                 s.send(STDOUT)
                 s.send(STDERR)
-                return
         except Exception as e:
             return self.bot.send_message(chat_id, 'Error: {}'.format(str(e).decode('utf-8', 'ignore')))
 

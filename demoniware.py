@@ -223,7 +223,7 @@ class Demoniware(object):
             except KeyboardInterrupt:
                 for group in self.allowed_groups:
                     try:
-                        self.send_message(group, 'Existing due to KeyboardInterrupt exception...')
+                        self.send_message(group, 'Exiting due to KeyboardInterrupt exception...')
                     except:
                         continue
                 sys.exit(0)
