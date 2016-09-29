@@ -4,7 +4,7 @@ psutil==4.3.1
 PyAudio==0.2.9
 pycrypto==2.6.1
 pygame==1.9.2b8
-PyInstaller==3.2
+PyInstaller==3.1.1
 pynput==1.1
 pyperclip==1.5.27
 pyscreenshot==0.4.2
