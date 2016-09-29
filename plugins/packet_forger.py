@@ -106,7 +106,7 @@ class Main(Plugin):
                 try:
                     s.send(self.tcp_payload)
                     packet_count += 1
-                except ConnectionResetError as e:
+                except Exception as e:
                     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     s.connect((host, int(port)))
 
