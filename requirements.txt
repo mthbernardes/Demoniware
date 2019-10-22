@@ -1,5 +1,5 @@
 clipboard==0.0.4
-Pillow==3.3.1
+Pillow==6.2.0
 psutil==4.3.1
 PyAudio==0.2.9
 pycrypto==2.6.1
