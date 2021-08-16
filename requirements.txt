@@ -9,7 +9,7 @@ pynput==1.1
 pyperclip==1.5.27
 pyscreenshot==0.4.2
 python3-xlib==0.15
-requests==2.11.1
+requests==2.20.0
 six==1.10.0
 telepot==9.1
 urllib3==1.26.5
