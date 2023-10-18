@@ -12,5 +12,5 @@ python3-xlib==0.15
 requests==2.20.0
 six==1.10.0
 telepot==9.1
-urllib3==1.26.5
+urllib3==1.26.18
 zope.interface==4.3.2
